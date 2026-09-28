@@ -1,0 +1,14 @@
+==3511333== Memcheck, a memory error detector
+==3511333== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==3511333== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==3511333== Command: ./DECK.exe
+==3511333== Parent PID: 3504349
+==3511333== 
+==3511333== 
+==3511333== HEAP SUMMARY:
+==3511333==     in use at exit: 0 bytes in 0 blocks
+==3511333==   total heap usage: 36 allocs, 36 frees, 76,940 bytes allocated
+==3511333== 
+==3511333== All heap blocks were freed -- no leaks are possible
+==3511333== 
+==3511333== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -1,0 +1,226 @@
+// Honor Pledge:
+// 
+// I pledge that I have neither given nor
+// received any help on this assignment.
+//
+// Jrouse
+
+#include <iostream>
+#include <iomanip>
+
+#include "card.h" 
+#include "standardDeck.h"
+
+#define ROUNDS 50
+#define DATA 2
+
+void war(int* roundData); // A round of the game, updates its rounds data in scoreBoard
+void initialize_tableTop(StandardDeck& fromDeck, StandardDeck& toDeck1, StandardDeck& toDeck2); // Initializes the player decks from one complete deck
+bool equal_topTwo_cards(StandardDeck& deck); // Returns true if the top two cards of the deck have the same faceVal_
+void output_statistics(int scoreBoard[][DATA]); // Outputs to the user the game statistics. Finds final winner, each players wins, and each players avg points
+
+int main() 
+{
+	int scoreBoard[ROUNDS][DATA]; // [round][winner, points]
+	int roundData[DATA]; // [winner, points]
+	
+	for (int i = 0; i < ROUNDS; i++)
+	{
+		std::cout << "Round " << i+1 << " ";
+		war(roundData);
+		std::cout << "Winner " << roundData[0] << " Points " << roundData[1] << std::endl;
+
+		scoreBoard[i][0] = roundData[0];
+		scoreBoard[i][1] = roundData[1];
+	}
+
+	output_statistics(scoreBoard);
+
+	return 0;
+};
+
+void war(int* roundData) 
+{
+	bool gameOver = false;
+	bool turnOver = false;
+
+	// Setup the game
+	StandardDeck* battleground = new StandardDeck();
+	StandardDeck* player1 = new StandardDeck();
+	StandardDeck* player2 = new StandardDeck();
+	initialize_tableTop(*battleground, *player1, *player2);
+
+	// Validate initial game state
+	int totalCards = battleground->getNumCards() + player1->getNumCards() + player2->getNumCards();
+	if (totalCards != DECK_SIZE) {
+		std::cout << "ERROR: Invalid initial game state - incorrect total cards" << std::endl;
+		delete battleground;
+		delete player1;
+		delete player2;
+		return;
+	}
+
+	// Game Play Loop
+	while (!gameOver)
+	{
+		// Player1 Turn
+		while (!turnOver)
+		{
+			// Validate game state before player 1's turn
+			totalCards = battleground->getNumCards() + player1->getNumCards() + player2->getNumCards();
+			if (totalCards != DECK_SIZE) {
+				std::cout << "ERROR: Lost cards during gameplay" << std::endl;
+				delete battleground;
+				delete player1;
+				delete player2;
+				return;
+			}
+
+			// Player1 Plays Card
+			if (!player1->isEmpty()) {
+				battleground->addCard(player1->dealCard());
+			}
+
+			if (equal_topTwo_cards(*battleground)) // Checking if player1 wins battleground 
+			{
+				player1->mergeDecks(*battleground); 
+			}
+			else if (player1->isEmpty()) // End Game Condition - Player2 Wins
+			{
+				roundData[0] = 2;
+				roundData[1] = player2->getNumCards();
+			
+				turnOver = true;
+				gameOver = true;
+			}
+			else
+			{
+				turnOver = true;
+			}
+		}
+		
+		// Reset End Turn Condition
+		turnOver = false;
+
+		// Player2 Turn
+		while (!turnOver)
+		{
+			// Validate game state before player 2's turn
+			totalCards = battleground->getNumCards() + player1->getNumCards() + player2->getNumCards();
+			if (totalCards != DECK_SIZE) {
+				std::cout << "ERROR: Lost cards during gameplay" << std::endl;
+				delete battleground;
+				delete player1;
+				delete player2;
+				return;
+			}
+
+			// Player2 Plays Card
+			if (!player2->isEmpty()) {
+				battleground->addCard(player2->dealCard());
+			}
+
+			if (equal_topTwo_cards(*battleground)) // Checking if player2 wins battleground 
+			{
+				player2->mergeDecks(*battleground); 
+			}
+			else if (player2->isEmpty()) // End Game Condition - Player1 Wins
+			{
+				roundData[0] = 1;
+				roundData[1] = player1->getNumCards();
+			
+				turnOver = true;
+				gameOver = true;
+			}
+			else
+			{
+				turnOver = true;
+			}
+		}
+
+		// Reset End Turn Condition
+		turnOver = false;
+	}
+
+	// Final validation before cleanup
+	totalCards = battleground->getNumCards() + player1->getNumCards() + player2->getNumCards();
+	if (totalCards != DECK_SIZE) {
+		std::cout << "ERROR: Lost cards during gameplay" << std::endl;
+	}
+
+	// Free Heap Memory
+	delete battleground;
+	delete player1;
+	delete player2;
+};
+
+void initialize_tableTop(StandardDeck& fromDeck, StandardDeck& toDeck1, StandardDeck& toDeck2)
+{
+	fromDeck.initializeDeck();
+	fromDeck.shuffle();
+
+	while (fromDeck.getNumCards() > 1)
+	{
+		toDeck1.addCard(fromDeck.dealCard());
+		toDeck2.addCard(fromDeck.dealCard());
+	} 
+};
+
+bool equal_topTwo_cards(StandardDeck& deck)
+{
+	// Early return if not enough cards
+	if (deck.getNumCards() < 2)
+	{
+		return false;
+	}
+
+	// Get the top two cards
+	Card topCard = deck.dealCard();
+	Card secondCard = deck.dealCard();
+
+	// Compare the faces
+	bool result = (topCard.getFace() == secondCard.getFace());
+
+	// Replace cards in correct order (LIFO)
+	deck.addCard(secondCard);
+	deck.addCard(topCard);
+
+	return result;
+};
+
+void output_statistics(int scoreBoard[][DATA])
+{
+	int wins_player1 = 0, wins_player2 = 0;
+	int totalPoints_player1 = 0, totalPoints_player2 = 0;
+
+	// Collect Data
+	for (int i = 0; i < ROUNDS; i++)
+	{
+		if (scoreBoard[i][0] == 1)
+		{
+			wins_player1++;
+			totalPoints_player1 += scoreBoard[i][1];
+		}
+		else if (scoreBoard[i][0] == 2)
+		{
+			wins_player2++;
+			totalPoints_player2 += scoreBoard[i][1];
+		}
+		else
+		{
+			std::cout << "ERROR-output_statistics: " << scoreBoard[i][0] << std::endl;
+		}
+	}
+
+	// Output Data
+	if (wins_player1 == wins_player2)
+	{
+		std::cout << "Player1 and Player2 tied with " << wins_player1 << " victory's." << std::endl;
+	}
+	else 
+	{
+		std::cout << (wins_player1 > wins_player2 ? "Player1" : "Player2") << " won with " << (wins_player1 > wins_player2 ? wins_player1 : wins_player2) << " victory's" << std::endl;
+	}
+	std::cout << "Player1 average score: " << std::fixed << std::setprecision(2) << (float)totalPoints_player1/wins_player1 << std::endl;
+	std::cout << "Player2 average score: " << std::fixed << std::setprecision(2) << (float)totalPoints_player2/wins_player2 << std::endl;
+};
