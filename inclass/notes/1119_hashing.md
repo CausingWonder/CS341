@@ -1,0 +1,12 @@
+- Normal hashing functions use modulus
+- output of the hash function is the index of a table
+- Simple hashing function: Index of array = hash key % size of array
+- Collision: when a key should store a value at a index which is already occupied
+- ### Collision solutions
+	- #### Open Addressing
+		- Insert: Search for the next unoccupied position in the array
+		-  Uses an enum to denote Occupied, Unoccupied, Removed
+		- Linear Probing
+			- hash(key) = key % size + n
+		- Quadratic Probing
+			- if **hash(key)  = key % size** is occupied then **hash(key) = (key+1*2) % size**, if occupied then **hash(key) = (key+2**2) % size**, if occupied then **hash(key) = (key+n*2) % size**.
