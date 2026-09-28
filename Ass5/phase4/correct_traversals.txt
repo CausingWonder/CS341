@@ -1,0 +1,19 @@
+Reading: data.txt     3 18 7 10 22 8 15 29 
+In Order Traversal:   3 7 8 10 15 18 22 29
+Pre Order Traversal:  7 3 18 10 8 15 22 29
+Post Order Traversal: 3 8 15 10 29 22 18 7
+Level Order Traversal:
+Level: 1
+7 Black
+Level: 2
+3 Black
+18 Red
+Level: 3
+10 Black
+22 Black
+Level: 4
+8 Red
+15 Red
+29 Red
+Root: 18 Red
+Height: 4
